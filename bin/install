@@ -38,11 +38,10 @@ install_io () {
     download_source_file $install_type $version $source_path
 
     (
-        tar zxf $source_path -C $tmp_download_dir --strip-components=1 || die "error untaring $source_path"
-        cd $tmp_download_dir
+        tar zxf $source_path -C $install_path --strip-components=1 || die "error untaring $source_path"
+        cd $install_path
 
         cmake -DCMAKE_INSTALL_PREFIX=$install_path
-        mkdir -p $install_path
         make install
     )
 }
