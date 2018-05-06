@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+set -eu
+[ "${BASH_VERSINFO[0]}" -ge 3 ] && set -o pipefail
+
+die () {
+    echo $1
+    exit 1
+}
+
+get_download_file_path() {
+    local install_type=$1
+    local version=$2
+    local tmp_download_dir=$3
+
+    local pkg_name="io-${install_type}-${version}.tar.gz"
+
+    echo "$tmp_download_dir/$pkg_name"
+}
+
+download_source_file() {
+    local install_type=$1
+    local version=$2
+    local download_path=$3
+    local download_url="https://github.com/IoLanguage/io/archive/${version}.tar.gz"
+
+    curl --fail -Lo $download_path $download_url || die "error fetching ${download_url}"
+}
+
+install_io () {
+    local install_type=$1
+    local version=$2
+    local install_path=$3
+    local tmp_download_dir=$(mktemp -dt io_build_XXXXXX)
+
+    local source_path=$(get_download_file_path $install_type $version $tmp_download_dir)
+
+    download_source_file $install_type $version $source_path
+
+    (
+        tar zxf $source_path -C $tmp_download_dir --strip-components=1 || die "error untaring $source_path"
+        cd $tmp_download_dir
+
+        cmake -DCMAKE_INSTALL_PREFIX=$install_path
+        mkdir -p $install_path
+        make install
+    )
+}
+
+install_io $ASDF_INSTALL_TYPE $ASDF_INSTALL_VERSION $ASDF_INSTALL_PATH
