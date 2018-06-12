@@ -19,8 +19,5 @@ function strip_unnecessary_chars() {
 }
 
 # Fetch all tags, and get only second column. Then remove all unnecesary characters.
-# versions=$(eval $cmd | strip_unnecessary_chars | sort_versions)
-
-# to see why the `head -n 1` see [#1](https://github.com/mracos/asdf-io/issues/1)
-versions=$(eval $cmd | strip_unnecessary_chars | sort_versions | tail -n 1)
+versions=$(eval $cmd | strip_unnecessary_chars | sort_versions)
 echo $versions
