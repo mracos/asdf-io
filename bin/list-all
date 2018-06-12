@@ -16,10 +16,10 @@ function sort_versions() {
     | paste -s -d" " -
 }
 
-function strip_unnecessary_chars() {
-    sed -n 's/.*"name": "\([0-9\.]*\)",/\1/p'
+function extract_versions_numbers() {
+    grep -o "name\": \"[0-9]\+.[0-9]\+.[0-9]\+" | sed 's/name": "//'
 }
 
 # Fetch all tags, and get only second column. Then remove all unnecesary characters.
-versions=$(eval "$cmd" | strip_unnecessary_chars | sort_versions)
+versions=$(eval "$cmd" | extract_versions_numbers | sort_versions)
 echo "$versions"
