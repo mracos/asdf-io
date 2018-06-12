@@ -19,5 +19,5 @@ function strip_unnecessary_chars() {
 }
 
 # Fetch all tags, and get only second column. Then remove all unnecesary characters.
-versions=$(eval $cmd | strip_unnecessary_chars | sort_versions)
-echo $versions
+versions=$(eval "$cmd" | strip_unnecessary_chars | sort_versions)
+echo "$versions"
