@@ -14,7 +14,10 @@ asdf plugin-add io https://github.com/mracos/asdf-io.git
 
 Check [asdf](https://github.com/asdf-vm/asdf) readme for instructions on how to install & manage versions of Io.
 
-## Before `asdf install`
+## Eerie :warning:
+
+By default it does not build with the [eerie](https://github.com/IoLanguage/eerie) package manager, because github does not export submodules inside archive tarballs (dear-github/dear-github#214)
+And we are downloading from github releases. :disappointed:
 
 
 ## Addons
