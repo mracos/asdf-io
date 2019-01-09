@@ -16,10 +16,12 @@ Check [asdf](https://github.com/asdf-vm/asdf) readme for instructions on how to 
 
 ## Before `asdf install`
 
-### All systems
 
-You'll need these packages (for the addons):
+## Addons
+By default it does not build with the addons either, but you can pass a `WITH_IO_ADDONS` env var to the install command, e.g.
+`WITH_IO_ADDONS=true asdf install io $VERSION`
 
+Keeping in mind that you'll need the following packages if building with the addons
 - [yajl](https://github.com/lloyd/yajl)
 - [libevent](http://libevent.org/)
 - [pcre](http://www.pcre.org/)

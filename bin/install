@@ -43,6 +43,10 @@ install_io () {
         tar zxf "$source_path" -C "$install_path" --strip-components=1 || die "error untaring $source_path"
         cd "$install_path"
 
+        if [[ -z "${WITH_IO_ADDONS:-}" ]]; then
+            sed -i.bak "s|add_subdirectory(addons)|#add_subdirectory(addons)|" CMakeLists.txt
+        fi
+
         cmake -DCMAKE_INSTALL_PREFIX="$install_path"
         make install
     )
