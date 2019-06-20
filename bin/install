@@ -46,7 +46,7 @@ install_io () {
             sed -i.bak "s|add_subdirectory(addons)|#add_subdirectory(addons)|" CMakeLists.txt
         fi
 
-        cmake -DCMAKE_INSTALL_PREFIX="$install_path" -DWITHOUT_EERIE=1
+        cmake -DCMAKE_INSTALL_PREFIX="$install_path" -DCMAKE_BUILD_TYPE=release -DWITHOUT_EERIE=1
         make install
     )
 }
