@@ -16,13 +16,16 @@ Check [asdf](https://github.com/asdf-vm/asdf) readme for instructions on how to 
 
 ## Eerie :warning:
 
-By default it does not build with the [eerie](https://github.com/IoLanguage/eerie) package manager, because github does not export submodules inside archive tarballs (dear-github/dear-github#214)
-And we are downloading from github releases. :disappointed:
+By default it does not build with the [eerie](https://github.com/IoLanguage/eerie) package manager because of different compilation process for versions before (2019.05.22-alpha).
 
 
 ## Addons
 By default it does not build with the addons either, but you can pass a `WITH_IO_ADDONS` env var to the install command, e.g.
 `WITH_IO_ADDONS=true asdf install io $VERSION`
+
+:warning: for versions after (`2019.05.22-alpha`) the addons are now eerie packages, so the flag above will not work
+
+please see [IoLanguage/io#400](https://github.com/IoLanguage/io/issues/400) for more information
 
 Keeping in mind that you'll need the following packages if building with the addons
 - [yajl](https://github.com/lloyd/yajl)
