@@ -13,18 +13,18 @@ get_download_file_path() {
     local version=$2
     local tmp_download_dir=$3
 
-    local pkg_name="io-${install_type}-${version}.tar.gz"
+    local pkg_name="io-${install_type}-${version}"
 
     echo "$tmp_download_dir/$pkg_name"
 }
 
-download_source_file() {
+clone_source_repository() {
     local install_type=$1
     local version=$2
     local download_path=$3
-    local download_url="https://github.com/IoLanguage/io/archive/${version}.tar.gz"
+    local clone_url="https://github.com/IoLanguage/io"
 
-    curl --fail -Lo "$download_path" "$download_url" || die "error fetching ${download_url}"
+    git clone --recursive --branch "$version" --depth 1 $clone_url "$download_path"
 }
 
 install_io () {
@@ -37,17 +37,16 @@ install_io () {
     local source_path
     source_path=$(get_download_file_path "$install_type" "$version" "$tmp_download_dir")
 
-    download_source_file "$install_type" "$version" "$source_path"
+    clone_source_repository "$install_type" "$version" "$source_path"
 
     (
-        tar zxf "$source_path" -C "$install_path" --strip-components=1 || die "error untaring $source_path"
-        cd "$install_path"
+        cd "$source_path"
 
         if [[ -z "${WITH_IO_ADDONS:-}" ]]; then
             sed -i.bak "s|add_subdirectory(addons)|#add_subdirectory(addons)|" CMakeLists.txt
         fi
 
-        cmake -DCMAKE_INSTALL_PREFIX="$install_path"
+        cmake -DCMAKE_INSTALL_PREFIX="$install_path" -DWITHOUT_EERIE=1
         make install
     )
 }
