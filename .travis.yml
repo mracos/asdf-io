@@ -1,5 +1,5 @@
 language: c
-script: asdf plugin-test io https://github.com/mracos/asdf-io.git 'io --version'
+script: asdf plugin-test io $TRAVIS_BUILD_DIR 'io --version'
 before_script:
   - git clone https://github.com/asdf-vm/asdf.git
   - . asdf/asdf.sh
