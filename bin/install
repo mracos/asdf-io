@@ -11,6 +11,8 @@ git clone --recursive --branch "$ASDF_INSTALL_VERSION" --depth 1 https://github.
 (
     cd "$source_path"
 
+    # Only for versions before 2019.05.22-alpha, since after this version addons were
+    # separated from the main repo and are now installed with eerie
     if [[ -z "${WITH_IO_ADDONS:-}" ]]; then
         sed -i.bak "s|add_subdirectory(addons)|#add_subdirectory(addons)|" CMakeLists.txt
     fi
