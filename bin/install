@@ -16,7 +16,18 @@ git clone --recursive --branch "$ASDF_INSTALL_VERSION" --depth 1 https://github.
     if [[ -z "${WITH_IO_ADDONS:-}" ]]; then
         sed -i.bak "s|add_subdirectory(addons)|#add_subdirectory(addons)|" CMakeLists.txt
     fi
+    
+    CMAKE_FLAGS=(\
+        -DCMAKE_INSTALL_PREFIX=${ASDF_INSTALL_PATH} \
+        -DCMAKE_BUILD_TYPE=release \
+        -DWITHOUT_EERIE=1 \
+    )
 
-    cmake -DCMAKE_INSTALL_PREFIX="$ASDF_INSTALL_PATH" -DCMAKE_BUILD_TYPE=release -DWITHOUT_EERIE=1
+    # see: https://github.com/IoLanguage/io/blob/master/README.md#macos-build-instructions
+    if [[ "$(/usr/bin/arch)" == "arm64" ]]; then
+        CMAKE_FLAGS+=("-DCMAKE_OSX_ARCHITECTURES='x86_64'")
+    fi
+
+    cmake "${CMAKE_FLAGS[@]}"
     make install
 )
