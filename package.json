@@ -1,0 +1,15 @@
+{
+  "name": "asdf-io",
+  "version": "0.1.0",
+  "description": "Io language plugin for the asdf version manager",
+  "private": true,
+  "scripts": {
+    "test": "bats test/unit",
+    "lint": "npm run lint:shell",
+    "lint:shell": "shellcheck -x -S warning bin/install bin/list-all lib/*.bash test/helpers.bash"
+  },
+  "devDependencies": {
+    "bats": "^1.11.0",
+    "shellcheck": "^4.1.0"
+  }
+}

@@ -34,3 +34,13 @@ Keeping in mind that you'll need the following packages if building with the add
 - [memcached](https://memcached.org/)
 - [ode](http://www.ode.org/)
 - [sqlite](http://www.sqlite.org/)
+
+## Development
+
+The cmake flag logic lives in `lib/cmake.bash` and is unit-tested with [bats](https://github.com/bats-core/bats-core).
+
+```
+npm install       # bats + shellcheck
+npm test          # bats test/unit
+npm run lint      # shellcheck
+```

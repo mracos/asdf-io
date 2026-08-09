@@ -1,0 +1,65 @@
+name: test
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Weekly, to catch upstream drift: bin/list-all reads IoLanguage/io tags
+    # live, and the install flow depends on their build system, so a periodic
+    # run flags a broken new release before a user hits it.
+    - cron: "17 9 * * 1"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm install --no-save
+      - run: npm run lint:shell
+
+  unit:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm install --no-save bats@1.11.0
+      - run: ./node_modules/.bin/bats test/unit
+
+  # Real end-to-end build via asdf. Only on demand / weekly: Io builds are
+  # heavy and old versions can break against a modern toolchain, so this is a
+  # drift check, not a required PR gate.
+  integration:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    needs: unit
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build deps
+        run: sudo apt-get update && sudo apt-get install -y cmake build-essential
+      - name: Install asdf
+        run: |
+          git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.0 --depth 1
+          echo "$HOME/.asdf/bin" >> "$GITHUB_PATH"
+          echo "$HOME/.asdf/shims" >> "$GITHUB_PATH"
+      - name: Link plugin
+        run: |
+          . ~/.asdf/asdf.sh
+          asdf plugin add io "$PWD"
+      - name: Build a version before 2017.09.06 (CMP0042 fix)
+        run: |
+          . ~/.asdf/asdf.sh
+          WITHOUT_EERIE=1 asdf install io 2015.11.11
+          asdf global io 2015.11.11
+          asdf exec io --version || true
+      - name: Build a recent version (eerie by default)
+        run: |
+          . ~/.asdf/asdf.sh
+          asdf install io 2019.05.22-alpha
