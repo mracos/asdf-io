@@ -14,9 +14,12 @@ asdf plugin-add io https://github.com/mracos/asdf-io.git
 
 Check [asdf](https://github.com/asdf-vm/asdf) readme for instructions on how to install & manage versions of Io.
 
-## Eerie :warning:
+## Eerie
 
-By default it does not build with the [eerie](https://github.com/IoLanguage/eerie) package manager because of different compilation process for versions before (2019.05.22-alpha).
+From `2019.05.22-alpha` onward, the [eerie](https://github.com/IoLanguage/eerie) package manager is built by default. Earlier versions use a different, incompatible compilation process, so eerie stays off for them.
+
+:warning: building eerie runs `io setup.io` at install time, which fetches packages over the network. To skip it on a supported version, pass `WITHOUT_EERIE=1`, e.g.
+`WITHOUT_EERIE=1 asdf install io $VERSION`
 
 
 ## Addons

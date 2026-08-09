@@ -25,7 +25,7 @@ git clone --recursive --branch "$ASDF_INSTALL_VERSION" --depth 1 https://github.
     CMAKE_FLAGS=()
     while IFS= read -r flag; do
         CMAKE_FLAGS+=("$flag")
-    done < <(io_cmake_flags "$ASDF_INSTALL_PATH" "$(/usr/bin/arch)")
+    done < <(io_cmake_flags "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH" "$(/usr/bin/arch)")
 
     cmake "${CMAKE_FLAGS[@]}"
     make install
