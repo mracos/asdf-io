@@ -1,6 +1,6 @@
 # asdf-io
 
-[![Travis](https://img.shields.io/travis/mracos/asdf-io.svg?style=flat-square)](https://travis-ci.org/mracos/asdf-io)
+[![test](https://github.com/mracos/asdf-io/actions/workflows/test.yml/badge.svg)](https://github.com/mracos/asdf-io/actions/workflows/test.yml)
 
 [Io](http://iolanguage.org/) plugin for [asdf](https://github.com/asdf-vm/asdf) version manager.
 
