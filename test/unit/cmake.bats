@@ -15,6 +15,13 @@ setup() {
     [ "$(io_version_date 2017.09.06)" = "2017.09.06" ]
 }
 
+@test "io_eerie_supported: true from 2019.05.22-alpha onward, false before" {
+    io_eerie_supported 2019.05.22-alpha
+    io_eerie_supported 2026.04.20-native-final
+    ! io_eerie_supported 2017.09.06
+    ! io_eerie_supported 2015.11.11
+}
+
 @test "io_cmake_flags: always sets the install prefix and release build" {
     run io_cmake_flags 2017.09.06 /opt/io x86_64
     [ "$status" -eq 0 ]

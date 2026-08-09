@@ -6,6 +6,8 @@ set -eu
 plugin_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=lib/cmake.bash
 source "$plugin_dir/lib/cmake.bash"
+# shellcheck source=lib/eerie.bash
+source "$plugin_dir/lib/eerie.bash"
 
 tmp_download_dir=$(mktemp -dt io_build_XXXXXX)
 source_path="$tmp_download_dir/io-${ASDF_INSTALL_TYPE}-${ASDF_INSTALL_VERSION}"
@@ -30,3 +32,9 @@ git clone --recursive --branch "$ASDF_INSTALL_VERSION" --depth 1 https://github.
     cmake "${CMAKE_FLAGS[@]}"
     make install
 )
+
+# Install the eerie package manager by default for versions that ship it.
+# Opt out with WITHOUT_EERIE=1. Best-effort: never fails the Io install.
+if [[ -z "${WITHOUT_EERIE:-}" ]] && io_eerie_supported "$ASDF_INSTALL_VERSION"; then
+    io_install_eerie "$source_path" "$ASDF_INSTALL_PATH"
+fi

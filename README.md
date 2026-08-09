@@ -16,10 +16,19 @@ Check [asdf](https://github.com/asdf-vm/asdf) readme for instructions on how to 
 
 ## Eerie
 
-From `2019.05.22-alpha` onward, the [eerie](https://github.com/IoLanguage/eerie) package manager is built by default. Earlier versions use a different, incompatible compilation process, so eerie stays off for them.
+For versions from `2019.05.22-alpha` on, the [eerie](https://github.com/IoLanguage/eerie) package manager is installed by default (older versions predate the eerie submodule). Opt out with `WITHOUT_EERIE=1`:
 
-:warning: building eerie runs `io setup.io` at install time, which fetches packages over the network. To skip it on a supported version, pass `WITHOUT_EERIE=1`, e.g.
-`WITHOUT_EERIE=1 asdf install io $VERSION`
+```
+WITHOUT_EERIE=1 asdf install io $VERSION
+```
+
+Eerie's own build is broken on modern toolchains, so it is installed with a workaround: its `docio` documentation dependency is dropped (its Markdown addon no longer compiles against `discount` 3.x) and eerie is set up from the local submodule via `io setup.io -dev`. The core package manager is unaffected. See [docs/adrs/0001-eerie-install.md](docs/adrs/0001-eerie-install.md).
+
+Notes:
+
+- Installing eerie fetches `kano` over the network and writes a single per-user `~/.eerie` shared across Io versions; if it already exists it is left untouched.
+- The step is best-effort: if eerie fails, the Io install still succeeds.
+- After install, add `EERIEDIR` and eerie's `bin` dirs to your shell (the setup output prints a snippet), and make sure `io` is on your `PATH`.
 
 
 ## Addons

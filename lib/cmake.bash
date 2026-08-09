@@ -12,6 +12,14 @@ io_version_date() {
     printf '%s\n' "${1%%-*}"
 }
 
+# Whether a version ships the eerie submodule we can install (see lib/eerie.bash).
+# Eerie became a top-level submodule in 2019.05.22-alpha; before that it lived
+# under addons with a different layout. Versions are date-based, so a lexical
+# compare of the date prefix matches chronological order. Returns 0 (yes) / 1 (no).
+io_eerie_supported() {
+    [[ ! "$(io_version_date "$1")" < "2019.05.22" ]]
+}
+
 # Emit the cmake flags for an install, one per line.
 #   $1 version       ASDF_INSTALL_VERSION
 #   $2 install_path  ASDF_INSTALL_PATH
