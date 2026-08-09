@@ -49,10 +49,17 @@ Keeping in mind that you'll need the following packages if building with the add
 
 ## Development
 
-The cmake flag logic lives in `lib/cmake.bash` and is unit-tested with [bats](https://github.com/bats-core/bats-core).
+Tested with [bats](https://github.com/bats-core/bats-core) at three levels:
+
+- `test/unit` — the pure helpers in `lib/*.bash`.
+- `test/regression` — the real `bin/install` run end to end with `git`/`cmake`/`make`/`io` stubbed (offline, no toolchain).
+- `test/integration` — a real `mise install io@<version>`; skipped unless `ASDF_IO_RUN_INTEGRATION=1`.
 
 ```
-npm install       # bats + shellcheck
-npm test          # bats test/unit
-npm run lint      # shellcheck
+npm install                    # bats + shellcheck
+npm test                       # unit + regression (fast, offline)
+npm run lint                   # shellcheck
+npm run test:integration       # real builds; needs mise + a network
 ```
+
+On Apple Silicon the real build needs cmake 3.x on `PATH` (CMake 4 rejects Io's `cmake_minimum_required(2.8)`): `mise use cmake@3.31.6` first.

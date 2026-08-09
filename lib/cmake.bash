@@ -12,6 +12,12 @@ io_version_date() {
     printf '%s\n' "${1%%-*}"
 }
 
+# Host architecture, used to decide the macOS cross-compile flag. Overridable
+# via IO_HOST_ARCH so tests and CI can exercise both branches on any host.
+io_host_arch() {
+    printf '%s\n' "${IO_HOST_ARCH:-$(/usr/bin/arch)}"
+}
+
 # Whether a version ships the eerie submodule we can install (see lib/eerie.bash).
 # Eerie became a top-level submodule in 2019.05.22-alpha; before that it lived
 # under addons with a different layout. Versions are date-based, so a lexical

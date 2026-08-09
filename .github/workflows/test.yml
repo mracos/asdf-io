@@ -22,7 +22,9 @@ jobs:
       - run: npm install --no-save
       - run: npm run lint:shell
 
-  unit:
+  # Unit + hermetic regression: fast, offline, no toolchain (git/cmake/make/io
+  # are stubbed). This is the required gate on every push/PR.
+  test:
     runs-on: ubuntu-latest
     needs: lint
     steps:
@@ -31,35 +33,31 @@ jobs:
         with:
           node-version: "20"
       - run: npm install --no-save bats@1.11.0
-      - run: ./node_modules/.bin/bats test/unit
+      - run: ./node_modules/.bin/bats test/unit test/regression
 
-  # Real end-to-end build via asdf. Only on demand / weekly: Io builds are
-  # heavy and old versions can break against a modern toolchain, so this is a
-  # drift check, not a required PR gate.
+  # Real end-to-end build via mise, gated behind ASDF_IO_RUN_INTEGRATION=1.
+  # Only on demand / weekly: Io builds are heavy and old versions can break
+  # against a moving toolchain, so this is a drift check, not a PR gate.
   integration:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    needs: unit
+    needs: test
+    env:
+      ASDF_IO_RUN_INTEGRATION: "1"
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
       - name: Install build deps
         run: sudo apt-get update && sudo apt-get install -y cmake build-essential
-      - name: Install asdf
+      - name: Install mise
         run: |
-          git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.0 --depth 1
-          echo "$HOME/.asdf/bin" >> "$GITHUB_PATH"
-          echo "$HOME/.asdf/shims" >> "$GITHUB_PATH"
-      - name: Link plugin
-        run: |
-          . ~/.asdf/asdf.sh
-          asdf plugin add io "$PWD"
-      - name: Build a version before 2017.09.06 (CMP0042 fix)
-        run: |
-          . ~/.asdf/asdf.sh
-          WITHOUT_EERIE=1 asdf install io 2015.11.11
-          asdf global io 2015.11.11
-          asdf exec io --version || true
-      - name: Build a recent version (eerie by default)
-        run: |
-          . ~/.asdf/asdf.sh
-          asdf install io 2019.05.22-alpha
+          curl https://mise.run | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          echo "$HOME/.local/share/mise/shims" >> "$GITHUB_PATH"
+      - name: Install bats
+        run: npm install --no-save bats@1.11.0
+      - name: Integration tests
+        run: ./node_modules/.bin/bats test/integration
+        timeout-minutes: 20

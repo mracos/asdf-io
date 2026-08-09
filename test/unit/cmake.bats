@@ -22,6 +22,14 @@ setup() {
     ! io_eerie_supported 2015.11.11
 }
 
+@test "io_host_arch: honors the IO_HOST_ARCH override" {
+    IO_HOST_ARCH=arm64 run io_host_arch
+    [ "$output" = "arm64" ]
+
+    IO_HOST_ARCH=x86_64 run io_host_arch
+    [ "$output" = "x86_64" ]
+}
+
 @test "io_cmake_flags: always sets the install prefix and release build" {
     run io_cmake_flags 2017.09.06 /opt/io x86_64
     [ "$status" -eq 0 ]

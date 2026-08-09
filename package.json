@@ -4,7 +4,10 @@
   "description": "Io language plugin for the asdf version manager",
   "private": true,
   "scripts": {
-    "test": "bats test/unit",
+    "test": "bats test/unit test/regression",
+    "test:unit": "bats test/unit",
+    "test:regression": "bats test/regression",
+    "test:integration": "ASDF_IO_RUN_INTEGRATION=1 bats test/integration",
     "lint": "npm run lint:shell",
     "lint:shell": "shellcheck -x -S warning bin/install bin/list-all lib/*.bash test/helpers.bash"
   },
