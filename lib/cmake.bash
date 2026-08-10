@@ -43,6 +43,12 @@ io_cmake_flags() {
     # this is a no-op for them.
     printf '%s\n' "-DCMAKE_POLICY_DEFAULT_CMP0042=NEW"
 
+    # CMake 4 removed compatibility with the `cmake_minimum_required(2.8)` every
+    # Io version still pins, so configure aborts before any target is defined.
+    # This raises the effective floor to 3.5 (what CMake 4 supports), letting the
+    # decade-old CMakeLists configure under a modern cmake. Ignored by CMake 3.x.
+    printf '%s\n' "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+
     # eerie's own cmake install step (a copy_directory that overlaps its source,
     # plus a setup.io run) is broken on modern cmake, so always disable it here.
     printf '%s\n' "-DWITHOUT_EERIE=1"

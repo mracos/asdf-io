@@ -25,7 +25,9 @@ teardown_file() {
 }
 
 @test "ls-remote lists known versions" {
-    run mise ls-remote io
+    # mise hides regex-detected prereleases (the -alpha tag) from the default
+    # ls-remote, so opt in to see the version the install tests use.
+    run mise ls-remote io --prerelease
     [ "$status" -eq 0 ]
     [[ "$output" == *"2019.05.22-alpha"* ]]
 }

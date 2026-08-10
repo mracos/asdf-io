@@ -23,6 +23,15 @@ git clone --recursive --branch "$ASDF_INSTALL_VERSION" --depth 1 https://github.
         sed -i.bak "s|add_subdirectory(addons)|#add_subdirectory(addons)|" CMakeLists.txt
     fi
 
+    # 2015.11.11 and earlier misspell the garbage collector target as
+    # `garabagecollector` in the libs/CMakeLists.txt add_dependencies() call.
+    # Old cmake silently ignored the unknown dependency; CMake 4 fails the
+    # generate step ("target ... does not exist"). Fix the typo so those
+    # versions build. No-op on versions that already spell it correctly.
+    if [[ -f libs/CMakeLists.txt ]]; then
+        sed -i.bak "s|garabagecollector|garbagecollector|g" libs/CMakeLists.txt
+    fi
+
     # Read the flags into an array line by line (bash 3.2 has no mapfile).
     CMAKE_FLAGS=()
     while IFS= read -r flag; do

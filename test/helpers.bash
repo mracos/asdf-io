@@ -44,8 +44,10 @@ dest=""
 for dest; do :; done
 [ -n "$dest" ] || exit 0
 echo "$dest" > "$SOURCE_PATH_LOG"
-mkdir -p "$dest/eerie"
+mkdir -p "$dest/eerie" "$dest/libs"
 printf 'add_subdirectory(addons)\n' > "$dest/CMakeLists.txt"
+# Old versions carry the upstream `garabagecollector` typo; bin/install fixes it.
+printf 'add_dependencies(iovmall_static io2c basekit coroutine garabagecollector iovmall)\n' > "$dest/libs/CMakeLists.txt"
 cat > "$dest/eerie/package.json" <<'PJ'
 {
   "dependencies": {

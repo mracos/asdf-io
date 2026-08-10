@@ -50,6 +50,11 @@ setup() {
     [[ "$output" == *"-DCMAKE_POLICY_DEFAULT_CMP0042=NEW"* ]]
 }
 
+@test "io_cmake_flags: raises the policy floor so CMake 4 can configure" {
+    run io_cmake_flags 2017.09.06 /opt/io x86_64
+    [[ "$output" == *"-DCMAKE_POLICY_VERSION_MINIMUM=3.5"* ]]
+}
+
 @test "io_cmake_flags: downgrades modern-clang errors for pre-2017.09.06 sources" {
     run io_cmake_flags 2015.11.11 /opt/io x86_64
     [[ "$output" == *"-DCMAKE_C_FLAGS=-Wno-implicit-function-declaration"* ]]

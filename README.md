@@ -62,4 +62,4 @@ npm run lint                   # shellcheck
 npm run test:integration       # real builds; needs mise + a network
 ```
 
-On Apple Silicon the real build needs cmake 3.x on `PATH` (CMake 4 rejects Io's `cmake_minimum_required(2.8)`): `mise use cmake@3.31.6` first.
+The install passes `-DCMAKE_POLICY_VERSION_MINIMUM=3.5` so it configures under CMake 4, which otherwise rejects Io's `cmake_minimum_required(2.8)`. No pinned cmake needed.

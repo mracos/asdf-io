@@ -23,6 +23,15 @@ io_args() { cat "$IO_ARGS_LOG"; }
     [[ "$output" == *"#add_subdirectory(addons)"* ]]
 }
 
+@test "fixes the upstream garbagecollector target typo" {
+    run_install 2015.11.11
+    [ "$status" -eq 0 ]
+
+    run cat "$(io_source_dir)/libs/CMakeLists.txt"
+    [[ "$output" == *"garbagecollector"* ]]
+    [[ "$output" != *"garabagecollector"* ]]
+}
+
 @test "passes the core cmake flags including the CMP0042 build fix" {
     run_install 2019.05.22-alpha
     [ "$status" -eq 0 ]
