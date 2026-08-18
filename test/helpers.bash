@@ -29,6 +29,7 @@ setup_sandbox() {
     export IO_ARGS_LOG="$WORK_DIR/io-args.log"
     export SOURCE_PATH_LOG="$WORK_DIR/source-path"
     export IO_HOST_ARCH="x86_64"            # default host; tests opt into arm64
+    export IO_OS="Darwin"                   # default OS; tests opt into Linux
     mkdir -p "$STUB_BIN" "$HOME" "$TMPDIR"
     : > "$GIT_ARGS_LOG"
     : > "$CMAKE_ARGS_LOG"
@@ -48,6 +49,14 @@ mkdir -p "$dest/eerie" "$dest/libs"
 printf 'add_subdirectory(addons)\n' > "$dest/CMakeLists.txt"
 # Old versions carry the upstream `garabagecollector` typo; bin/install fixes it.
 printf 'add_dependencies(iovmall_static io2c basekit coroutine garabagecollector iovmall)\n' > "$dest/libs/CMakeLists.txt"
+# IoSystem.c carries the <sys/sysctl.h> include that glibc 2.32 removed;
+# bin/install swaps it out on Linux.
+mkdir -p "$dest/libs/iovm/source"
+cat > "$dest/libs/iovm/source/IoSystem.c" <<'IOSYS'
+#ifndef __CYGWIN__
+# include <sys/sysctl.h>
+#endif
+IOSYS
 cat > "$dest/eerie/package.json" <<'PJ'
 {
   "dependencies": {

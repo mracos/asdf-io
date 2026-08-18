@@ -32,6 +32,19 @@ git clone --recursive --branch "$ASDF_INSTALL_VERSION" --depth 1 https://github.
         sed -i.bak "s|garabagecollector|garbagecollector|g" libs/CMakeLists.txt
     fi
 
+    # glibc 2.32 removed <sys/sysctl.h>, so the bare include in
+    # libs/iovm/source/IoSystem.c fails to compile on modern Linux. Every
+    # sysctl() call in the tree is guarded by CTL_HW/HW_* macros that this
+    # same header defines, with a sysconf() fallback, so swapping the include
+    # for one that always exists is safe. macOS still ships the header, so
+    # the patch is Linux-only.
+    if [[ "$(io_os)" == "Linux" ]]; then
+        { grep -rl 'include <sys/sysctl.h>' libs 2>/dev/null || true; } |
+            while IFS= read -r file; do
+                sed -i.bak 's|include <sys/sysctl\.h>|include <unistd.h> /* sys/sysctl.h removed in glibc 2.32 */|' "$file"
+            done
+    fi
+
     # Read the flags into an array line by line (bash 3.2 has no mapfile).
     CMAKE_FLAGS=()
     while IFS= read -r flag; do

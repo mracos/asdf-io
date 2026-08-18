@@ -32,6 +32,24 @@ io_args() { cat "$IO_ARGS_LOG"; }
     [[ "$output" != *"garabagecollector"* ]]
 }
 
+@test "swaps the glibc-removed sys/sysctl.h include on Linux" {
+    export IO_OS=Linux
+    run_install 2019.05.22-alpha
+    [ "$status" -eq 0 ]
+
+    run cat "$(io_source_dir)/libs/iovm/source/IoSystem.c"
+    [[ "$output" != *"include <sys/sysctl.h>"* ]]
+    [[ "$output" == *"include <unistd.h>"* ]]
+}
+
+@test "leaves the sys/sysctl.h include alone on macOS" {
+    run_install 2019.05.22-alpha
+    [ "$status" -eq 0 ]
+
+    run cat "$(io_source_dir)/libs/iovm/source/IoSystem.c"
+    [[ "$output" == *"include <sys/sysctl.h>"* ]]
+}
+
 @test "passes the core cmake flags including the CMP0042 build fix" {
     run_install 2019.05.22-alpha
     [ "$status" -eq 0 ]

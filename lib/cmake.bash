@@ -18,6 +18,13 @@ io_host_arch() {
     printf '%s\n' "${IO_HOST_ARCH:-$(/usr/bin/arch)}"
 }
 
+# Host OS (uname -s), used to decide the Linux-only source patches in
+# bin/install. Overridable via IO_OS so tests can exercise both branches
+# on any host.
+io_os() {
+    printf '%s\n' "${IO_OS:-$(uname -s)}"
+}
+
 # Whether a version ships the eerie submodule we can install (see lib/eerie.bash).
 # Eerie became a top-level submodule in 2019.05.22-alpha; before that it lived
 # under addons with a different layout. Versions are date-based, so a lexical
@@ -59,8 +66,14 @@ io_cmake_flags() {
     # those versions so they build under a modern toolchain; upstream's decade-old
     # source can't be patched from here. Newer versions compile clean, so the flag
     # is scoped to the versions that need it.
+    #
+    # -fgnu89-inline: those same sources rely on gnu89 `extern inline`
+    # semantics (basekit's List.h et al). GCC's default C99+ inline model
+    # emits an external definition per translation unit and fails the link
+    # with "multiple definition of List_*". Clang accepts the flag for C too,
+    # so it stays unconditional within the version branch.
     if [[ "$(io_version_date "$version")" < "2017.09.06" ]]; then
-        printf '%s\n' "-DCMAKE_C_FLAGS=-Wno-implicit-function-declaration -Wno-int-conversion -Wno-implicit-int"
+        printf '%s\n' "-DCMAKE_C_FLAGS=-Wno-implicit-function-declaration -Wno-int-conversion -Wno-implicit-int -fgnu89-inline"
     fi
 
     # see: https://github.com/IoLanguage/io/blob/master/README.md#macos-build-instructions

@@ -30,6 +30,14 @@ setup() {
     [ "$output" = "x86_64" ]
 }
 
+@test "io_os: honors the IO_OS override" {
+    IO_OS=Linux run io_os
+    [ "$output" = "Linux" ]
+
+    IO_OS=Darwin run io_os
+    [ "$output" = "Darwin" ]
+}
+
 @test "io_cmake_flags: always sets the install prefix and release build" {
     run io_cmake_flags 2017.09.06 /opt/io x86_64
     [ "$status" -eq 0 ]
@@ -58,6 +66,11 @@ setup() {
 @test "io_cmake_flags: downgrades modern-clang errors for pre-2017.09.06 sources" {
     run io_cmake_flags 2015.11.11 /opt/io x86_64
     [[ "$output" == *"-DCMAKE_C_FLAGS=-Wno-implicit-function-declaration"* ]]
+}
+
+@test "io_cmake_flags: forces gnu89 inline semantics for pre-2017.09.06 sources" {
+    run io_cmake_flags 2015.11.11 /opt/io x86_64
+    [[ "$output" == *"-fgnu89-inline"* ]]
 }
 
 @test "io_cmake_flags: no legacy C flags for 2017.09.06 and later" {
