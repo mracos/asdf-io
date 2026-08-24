@@ -56,6 +56,15 @@ io_cmake_flags() {
     # decade-old CMakeLists configure under a modern cmake. Ignored by CMake 3.x.
     printf '%s\n' "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
 
+    # Io installs its shared libs into <prefix>/lib but sets no install RPATH,
+    # so cmake strips the build-tree one on install. On Linux the linker writes
+    # DT_RUNPATH, which is not used for transitive dependencies: an RPATH on
+    # bin/io does not help libiovmall.so find libcoroutine.so, and every run
+    # dies with "error while loading shared libraries: libcoroutine.so". Set it
+    # on every installed target so the whole chain resolves. macOS resolves the
+    # same @rpath install names through this entry, so it stays unconditional.
+    printf '%s\n' "-DCMAKE_INSTALL_RPATH=${install_path}/lib"
+
     # eerie's own cmake install step (a copy_directory that overlaps its source,
     # plus a setup.io run) is broken on modern cmake, so always disable it here.
     printf '%s\n' "-DWITHOUT_EERIE=1"

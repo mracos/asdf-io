@@ -88,3 +88,11 @@ setup() {
     run io_cmake_flags 2015.11.11 /opt/io x86_64
     [[ "$output" == *"-DWITHOUT_EERIE=1"* ]]
 }
+
+@test "io_cmake_flags: sets an install RPATH pointing at the installed libs" {
+    run io_cmake_flags 2019.05.22-alpha /opt/io x86_64
+    [[ "$output" == *"-DCMAKE_INSTALL_RPATH=/opt/io/lib"* ]]
+
+    run io_cmake_flags 2015.11.11 /opt/io x86_64
+    [[ "$output" == *"-DCMAKE_INSTALL_RPATH=/opt/io/lib"* ]]
+}

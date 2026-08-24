@@ -59,6 +59,7 @@ io_args() { cat "$IO_ARGS_LOG"; }
     [[ "$output" == *"-DCMAKE_BUILD_TYPE=release"* ]]
     [[ "$output" == *"-DCMAKE_POLICY_DEFAULT_CMP0042=NEW"* ]]
     [[ "$output" == *"-DWITHOUT_EERIE=1"* ]]
+    [[ "$output" == *"-DCMAKE_INSTALL_RPATH=$WORK_DIR/install/lib"* ]]
 }
 
 @test "adds legacy clang flags for versions before 2017.09.06" {
