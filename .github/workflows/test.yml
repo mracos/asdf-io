@@ -25,13 +25,22 @@ jobs:
   # Unit + hermetic regression: fast, offline, no toolchain (git/cmake/make/io
   # are stubbed). This is the required gate on every push/PR.
   test:
-    runs-on: ubuntu-latest
+    name: test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     needs: lint
+    strategy:
+      fail-fast: false
+      matrix:
+        # macOS ships bash 3.2, which bin/install is written against (no
+        # mapfile, no associative arrays), so it gets its own leg.
+        os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+      - name: bash version
+        run: bash --version | head -1
       - run: npm install --no-save bats@1.11.0
       - run: ./node_modules/.bin/bats test/unit test/regression
 
@@ -39,9 +48,17 @@ jobs:
   # Only on demand / weekly: Io builds are heavy and old versions can break
   # against a moving toolchain, so this is a drift check, not a PR gate.
   integration:
+    name: integration (${{ matrix.os }})
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        # The macOS leg is where lib/cmake.bash earns its keep: CMP0042 for the
+        # dylib install names, and the x86_64 cross-compile on arm64 hosts.
+        # Neither branch runs on Linux.
+        os: [ubuntu-latest, macos-latest]
     env:
       ASDF_IO_RUN_INTEGRATION: "1"
     steps:
@@ -49,8 +66,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - name: Install build deps
+      - name: Install build deps (linux)
+        if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y cmake build-essential
+      - name: Install build deps (macos)
+        if: runner.os == 'macOS'
+        run: brew install cmake
+      # io_cmake_flags cross-compiles to x86_64 on arm64 hosts, following
+      # upstream's macOS build instructions, so running the result needs
+      # Rosetta. oahd is its daemon: present means Rosetta is already there.
+      - name: Ensure Rosetta
+        if: runner.os == 'macOS'
+        run: pgrep -q oahd || softwareupdate --install-rosetta --agree-to-license
       - name: Install mise
         run: |
           curl https://mise.run | sh
@@ -60,4 +87,4 @@ jobs:
         run: npm install --no-save bats@1.11.0
       - name: Integration tests
         run: ./node_modules/.bin/bats test/integration
-        timeout-minutes: 20
+        timeout-minutes: 30

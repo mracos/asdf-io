@@ -5,8 +5,8 @@
 #
 #   ASDF_IO_RUN_INTEGRATION=1 npm run test:integration
 #
-# Note: on Apple Silicon the build needs cmake 3.x on PATH (CMake 4 rejects
-# Io's `cmake_minimum_required(2.8)`); e.g. `mise use cmake@3.31.6` first.
+# On Apple Silicon the build is cross-compiled to x86_64 (upstream's macOS
+# instructions), so running the installed binary needs Rosetta.
 
 setup_file() {
     [[ "${ASDF_IO_RUN_INTEGRATION:-0}" == "1" ]] \
