@@ -44,12 +44,12 @@ jobs:
       - run: npm install --no-save bats@1.11.0
       - run: ./node_modules/.bin/bats test/unit test/regression
 
-  # Real end-to-end build via mise, gated behind ASDF_IO_RUN_INTEGRATION=1.
-  # Only on demand / weekly: Io builds are heavy and old versions can break
-  # against a moving toolchain, so this is a drift check, not a PR gate.
+  # Real end-to-end build via mise. ASDF_IO_RUN_INTEGRATION keeps the suite
+  # inert outside CI; here it always runs, because upstream is dormant and the
+  # breakage comes from the toolchain moving under a decade-old source tree.
+  # The weekly cron covers the stretches where nobody pushes.
   integration:
     name: integration (${{ matrix.os }})
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.os }}
     needs: test
     strategy:
