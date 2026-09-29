@@ -28,8 +28,9 @@ teardown_file() {
     # mise hides regex-detected prereleases (the -alpha tag) from the default
     # ls-remote, so opt in to see the version the install tests use.
     run mise ls-remote io --prerelease
-    [ "$status" -eq 0 ]
-    [[ "$output" == *"2019.05.22-alpha"* ]]
+    [ "$status" -eq 0 ] || { echo "ls-remote failed: $output"; false; }
+    [[ "$output" == *"2019.05.22-alpha"* ]] \
+        || { echo "2019.05.22-alpha missing from: $output"; false; }
 }
 
 @test "installs a pre-2017 version and it runs (CMP0042 + clang flags fix)" {

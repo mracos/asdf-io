@@ -2,11 +2,14 @@
 
 releases_path=https://api.github.com/repos/IoLanguage/io/tags
 
-cmd="curl -s"
-if [ -n "$OAUTH_TOKEN" ]; then
-  cmd="$cmd -H 'Authorization: token $OAUTH_TOKEN'"
+# Unauthenticated api.github.com allows 60 requests/hour per source IP, and
+# shared CI egress IPs burn through that. The 403 body is JSON, so it parses to
+# an empty version list rather than an error: send a token when there is one.
+curl_args=(-fsS)
+if [ -n "${OAUTH_TOKEN:-}" ]; then
+    curl_args+=(-H "Authorization: token $OAUTH_TOKEN")
 fi
-cmd="$cmd $releases_path"
+curl_args+=("$releases_path")
 
 # stolen from https://github.com/rbenv/ruby-build/pull/631/files#diff-fdcfb8a18714b33b07529b7d02b54f1dR942
 function sort_versions() {
@@ -24,5 +27,20 @@ function extract_versions_numbers() {
     grep -o "\"name\": \"[0-9]\+.[0-9]\+.[0-9]\+-\?\w\+\"," | sed 's/"name": "\(.*\)",/\1/'
 }
 
-versions=$(eval "$cmd" | extract_versions_numbers | sort_versions)
+if ! payload="$(curl "${curl_args[@]}")"; then
+    echo "asdf-io: could not reach $releases_path" >&2
+    exit 1
+fi
+
+versions="$(printf '%s\n' "$payload" | extract_versions_numbers | sort_versions)"
+
+# An empty list means the payload was not a tag array: a rate-limit or error
+# body, or an upstream schema change. Failing here beats reporting "no versions
+# available" to asdf and letting the install fail later for no stated reason.
+if [ -z "$versions" ]; then
+    echo "asdf-io: no versions found in the response from $releases_path" >&2
+    echo "asdf-io: if this is a rate limit, set OAUTH_TOKEN to a GitHub token" >&2
+    exit 1
+fi
+
 echo "$versions"

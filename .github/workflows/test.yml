@@ -61,6 +61,10 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     env:
       ASDF_IO_RUN_INTEGRATION: "1"
+      # bin/list-all reads api.github.com, which allows 60 requests/hour per IP
+      # unauthenticated; the shared macOS runner pool exhausts that. github.token
+      # has read access to public repos, which is all list-all needs.
+      OAUTH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

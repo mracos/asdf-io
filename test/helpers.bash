@@ -94,6 +94,25 @@ teardown_sandbox() {
     [[ -n "${WORK_DIR:-}" && -d "$WORK_DIR" ]] && rm -rf "$WORK_DIR"
 }
 
+# stub_curl <file> — make `curl` serve the given file as the API response, and
+# record the argv it was called with in CURL_ARGS_LOG. Honours CURL_HTTP_FAIL to
+# simulate the non-2xx that `curl -f` turns into a non-zero exit.
+stub_curl() {
+    export CURL_BODY="$1"
+    export CURL_ARGS_LOG="$WORK_DIR/curl-args.log"
+    : > "$CURL_ARGS_LOG"
+    cat > "$STUB_BIN/curl" <<'STUB'
+#!/usr/bin/env bash
+printf '%s\n' "$*" >> "$CURL_ARGS_LOG"
+if [ -n "${CURL_HTTP_FAIL:-}" ]; then
+    echo "curl: (22) The requested URL returned error: 403" >&2
+    exit 22
+fi
+cat "$CURL_BODY"
+STUB
+    chmod +x "$STUB_BIN/curl"
+}
+
 # run_install <version> — run the real bin/install against the sandbox. Seeds
 # the io binary that `make install` would produce as a recording stub, so the
 # eerie step's invocation of it is observable via IO_ARGS_LOG.
